@@ -1,4 +1,4 @@
-import uvivorn
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,4 +26,4 @@ app = get_application()
 
 if __name__ == "__main__":
     _app = get_application()
-    uvivorn(_app, )
+    uvicorn(_app, settings.BACKEND_DOMAIN, settings.BACKEND_PORT)
