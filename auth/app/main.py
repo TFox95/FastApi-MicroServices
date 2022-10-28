@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from core import logging
 from core.config import settings
+
+NAMESPACE: str = f"Base Server"
 
 
 def get_application():
@@ -15,6 +18,7 @@ def get_application():
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    logging.ServerINFO(NAMESPACE, "Server Running", _app.title)
     return _app
 
 
