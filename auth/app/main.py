@@ -18,7 +18,7 @@ def get_application():
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    logging.ServerINFO(NAMESPACE, "Server Running", _app.title)
+    logging.ServerINFO(NAMESPACE, f"Server Running, MicroServer: {_app.title}")
     return _app
 
 

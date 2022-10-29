@@ -12,5 +12,12 @@ class Settings():
         getenv("BACKEND_CORS_ORIGINS")] or None
     BACKEND_PORT: int = int(getenv("UVICORN_PORT")) or 8000
 
+    DB_USER: str = getenv("DB_USER")
+    DB_PASS: str = getenv("DB_PASS")
+    DB_NAME: str = getenv("DB_NAME")
+    DB_HOST: str = getenv("DB_HOST")
+    DB_PORT: int = getenv("DB_PORT")
+    DB_DRIVER: str = getenv("DB_DRIVER")
+
 
 settings = Settings()
