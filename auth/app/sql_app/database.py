@@ -1,18 +1,14 @@
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+from sqlalchemy.orm import sessionmaker
+
 from core.config import settings
 
-import sqlalchemy
+NAMESPACE: str = "SQL_APP/Database"
 
-def connnectMysqlDatabase() -> sqlalchemy.engine.base.Engine:
-    
-    pool = sqlalchemy.engine.url.URL.create(
-        drivername=settings.DB_DRIVER,
-        username=settings.DB_USER,
-        password=settings.DB_PASS,
-        host=settings.DB_HOST,
-        port=settings.DB_PORT,
-        database=settings.DB_NAME
-    )
+engine = create_engine(url=settings.DB_URL)
 
-    print(f"database connection is {pool}")
+SessionCloud = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-    return pool
+Base: DeclarativeMeta = declarative_base()

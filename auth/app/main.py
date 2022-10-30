@@ -1,10 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
 
 from core import logging
 from core.config import settings
+from sql_app import database
+from sql_app.api import v1
 
 NAMESPACE: str = f"Base Server"
+
+def get_db():
+    db = database.SessionCloud()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 def get_application():
@@ -15,11 +26,14 @@ def get_application():
         allow_origins=[str(origin)
                        for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["POST", "PATCH", "GET", "DELETE", "PUT", "OPTIONS"],
+        allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
+        
     )
     logging.ServerINFO(NAMESPACE, f"Server Running, MicroServer: {_app.title}")
     return _app
 
 
 app = get_application()
+
+app.add_api_route("sql_app/", v1)

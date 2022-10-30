@@ -18,6 +18,7 @@ class Settings():
     DB_HOST: str = getenv("DB_HOST")
     DB_PORT: int = getenv("DB_PORT")
     DB_DRIVER: str = getenv("DB_DRIVER")
+    DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 
 settings = Settings()
