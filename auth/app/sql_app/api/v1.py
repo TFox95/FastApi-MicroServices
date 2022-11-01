@@ -2,14 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app.main import get_db
 from core import logging
 
 router = APIRouter()
 
 
 @router.get("/")
-async def get_sql_app(db: Session= Depends(get_db), res= JSONResponse):
+async def get_sql_app(db: Session= Depends(main.get_db), res= JSONResponse):
 
     try:
         if  db:
