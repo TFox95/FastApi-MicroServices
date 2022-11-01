@@ -12,3 +12,10 @@ engine = create_engine(url=settings.DB_URL)
 SessionCloud = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base: DeclarativeMeta = declarative_base()
+
+def get_db():
+    db = database.SessionCloud()
+    try:
+        yield db
+    finally:
+        db.close()
