@@ -10,13 +10,6 @@ from sql_app.api import v1
 
 NAMESPACE: str = f"Base Server"
 
-def get_db():
-    db = database.SessionCloud()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 def get_application():
     _app = _app = FastAPI(title=settings.PROJECT_NAME)
@@ -36,4 +29,4 @@ def get_application():
 
 app = get_application()
 
-app.add_api_route("sql_app/", v1)
+app.include_router(v1.router)
