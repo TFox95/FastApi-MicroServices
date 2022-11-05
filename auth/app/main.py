@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core import logging
 from core.config import settings
-from sql_app.api import v1
+
+from sql_app.api import routes as sql_routes
 
 NAMESPACE: str = f"Base Server"
 
@@ -26,4 +27,4 @@ def get_application():
 
 app = get_application()
 
-app.include_router(v1.router)
+app.include_router(sql_routes.router)

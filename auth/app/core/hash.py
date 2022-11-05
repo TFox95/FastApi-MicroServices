@@ -80,4 +80,3 @@ class Hash():
 
         except Exception as exc:
             raise exc
-print(Hash.verify("Mikal1029*", "8166058088b96079163fd32cc6a9e1a699ea10511b00a0ef7a3d42cef5c55457", "123456"))

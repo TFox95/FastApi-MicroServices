@@ -5,21 +5,22 @@ from sqlalchemy.orm import Session
 from sql_app.database import get_db
 from core import logging
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/db", 
+    tags=["database"]
+)
 
 
-@router.get("/db/conn")
+@router.get("/")
 async def get_sql_app(res=JSONResponse, req=Request, db: Session = Depends(get_db)):
 
     try:
-        if db:
-            print(db.connection())
-            hellow: str = "helloworld"
-            return res({"sucess": hellow}, status.HTTP_201_CREATED)
-
-        return res({"error": {
-            HTTPException(status.HTTP_400_BAD_REQUEST)
-        }}, status.HTTP_400_BAD_REQUEST)
+        if not db:
+            raise Exception(db)
+            
+        print(db.connection())
+        hellow: str = "helloworld"
+        return res({"sucess": hellow}, status.HTTP_201_CREATED)
 
     except Exception as e:
         print(e)
