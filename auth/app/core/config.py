@@ -1,7 +1,6 @@
 import dotenv
 from os import getenv
 from typing import List
-
 from pydantic import AnyHttpUrl
 
 dotenv.load_dotenv()
@@ -20,5 +19,6 @@ class Settings():
     DB_DRIVER: str = getenv("DB_DRIVER")
     DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+    PEPPER: str = getenv("HASH_PEPPER")
 
 settings = Settings()
