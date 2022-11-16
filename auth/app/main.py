@@ -4,7 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from core import logging
 from core.config import settings
 
+from sql_app.database import engine
+from auth import models as aModels
+
 from sql_app.api import routes as sql_routes
+from auth.api import routes as auth_routes
+
+aModels.Base.metadata.create_all(bind=engine)
 
 NAMESPACE: str = f"Base Server"
 
@@ -28,3 +34,4 @@ def get_application():
 app = get_application()
 
 app.include_router(sql_routes.router)
+app.include_router(auth_routes.router)
