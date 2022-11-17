@@ -1,9 +1,6 @@
 from uuid import uuid4
 
-import sqlalchemy
-from sqlalchemy.orm import Session, Query
-from sqlalchemy import select
-
+from sqlalchemy.orm import Session
 from sql_app.database import get_db, engine
 
 from auth import (schemas, models)
@@ -13,21 +10,12 @@ from core.hash import Hash
 from core.config import settings
 from core.logging import ServerINFO
 
+NAMESPACE = str("Auth CRUD")
 User = models.User
-connection = engine.connect()
-
-NAMESPACE = str("/Auth/CRUD")
 
 class UserCRUD():
     
     def create_User(db:Session, request: schemas.UserCreate):
-        #e = Session.query(User)
-        
-        query = select(User).where(User.username == request.username)
-        conn = connection.execute(query).first()
-        #print(query)
-        print(conn)
-        
         
         _dict: dict = request.dict()
         _dict["uuid"] = uuid4()
@@ -36,10 +24,17 @@ class UserCRUD():
         _user = User(email=_dict.get("email"), username=_dict.get("username"),
                     password=Hash.encode(_dict.get("psw"), settings.PEPPER), uuid=_dict.get("uuid"),
                     verified=_dict.get("verified"), isAdmin=_dict.get("isAdmin"))
-    
+        #adding User to db and then refreshing the _user instance with the updated information
         db.add(_user)
         db.commit()
         db.refresh(_user)
-        logging.ServerINFO(NAMESPACE, f"<User {_user.username} has been created! Successfully!")
+        #Using the refreshed _user instance pk
+        _profile = models.Profile(user_ID=_user.pk)
+        db.add(_profile)
+        db.commit()
+        logging.ServerINFO(NAMESPACE, f"<User {_user.username} has been created! Successfully!>")
         return _user
-    
+
+    def retrieve_User(db:Session):
+        pass
+
