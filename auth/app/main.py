@@ -16,7 +16,9 @@ NAMESPACE: str = f"Base Server"
 
 
 def get_application():
-    _app = _app = FastAPI(title=settings.PROJECT_NAME)
+    _app = _app = FastAPI(title=settings.PROJECT_NAME,
+                          description="MicroService for handling Authentication",
+                          version="0.3.1")
 
     _app.add_middleware(
         CORSMiddleware,
@@ -33,5 +35,6 @@ def get_application():
 
 app = get_application()
 
+#Routes
 app.include_router(sql_routes.router)
 app.include_router(auth_routes.router)
