@@ -36,7 +36,7 @@ class User(Base):
     lastLogin = Column(DateTime, onupdate=func.now())
 
     def __repr__(self) -> str:
-        return f"<User {self.username} has been created>"
+        return f"{self.username}"
 
 
 class Profile(Base):
@@ -56,8 +56,6 @@ class Profile(Base):
     stripe_Cust_ID = Column(String(length=50), nullable=True)
     One_click_Purchasing = Column(Boolean, default=False)
 
-    def __repr__(self) -> str:
-        return f"<Profile has been created>"
 
 
 class Address(Base):
@@ -73,6 +71,3 @@ class Address(Base):
     zipCode = Column(Integer)
     city = Column(String(length=25))
     state = Column(String(length=25))
-    
-    def __repr__(self) -> str:
-        return f"<Address {self.streetNumber} {self.streetName} has been created>"
