@@ -1,4 +1,5 @@
 import hashlib
+from core.config import settings
 
 
 class Hash():
@@ -12,8 +13,7 @@ class Hash():
         If no algorithm is Selected, the default algorithm of sha3_256 will
         be selected.
         """
-        salt = "bY64tISJiKBBXhr"
-        saltKeyPepper: str = f"{salt}{key}{pepper}"
+        saltKeyPepper: str = f"{settings.SALT}{key}{pepper}"
 
         if type(key) is not str:
             raise Exception(
@@ -48,8 +48,7 @@ class Hash():
         If no algorithm is Selected, the default algorithm of sha3_256 will be
         be selected.
         """
-        salt = "bY64tISJiKBBXhr"
-        saltKeyPepper: str = f"{salt}{key}{pepper}"
+        saltKeyPepper: str = f"{settings.SALT}{key}{pepper}"
 
         if type(key) is not str:
             raise Exception(

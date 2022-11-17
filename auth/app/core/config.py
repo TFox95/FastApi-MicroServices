@@ -20,5 +20,6 @@ class Settings():
     DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     PEPPER: str = getenv("HASH_PEPPER")
+    SALT: str | float = getenv("HASH_SALT")
 
 settings = Settings()
