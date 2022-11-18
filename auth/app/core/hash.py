@@ -39,7 +39,7 @@ class Hash():
             raise exc
 
 
-    def verify(key: str, keyHash: str, pepper: str, algorithm: str = None) -> bool:
+    def verify(key: str, encoded_key: str, pepper: str, algorithm: str = None) -> bool:
         """
         class Based function that takes in a key, a hash of a key, & optional algorithm arguments
         to return a True or False value depending on the comparison of the  salted & peppered two 
