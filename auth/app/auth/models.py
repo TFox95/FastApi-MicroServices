@@ -1,22 +1,13 @@
-from sqlalchemy import ForeignKey, Boolean, Column, Integer, String, UniqueConstraint as Unique, Table
-from sqlalchemy.orm import relationship, backref, Session
+from sqlalchemy import ForeignKey, Boolean, Column, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
-from fastapi import Depends
-
 from sql_app.database import Base, get_db
-
-import datetime as Date
-
-from auth import schemas
-
-from core.config import settings
-from core.hash import Hash
 
 
 class User(Base):
-    __tablename__ = "users"
+    name__ = "users"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     profile = relationship("Profile", back_populates="user", primaryjoin="User.pk == Profile.user_ID",
@@ -40,7 +31,7 @@ class User(Base):
 
 
 class Profile(Base):
-    __tablename__ = "profiles"
+    name__ = "profiles"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     user_ID = Column(Integer, ForeignKey("users.pk", ondelete="CASCADE"))
@@ -59,7 +50,7 @@ class Profile(Base):
 
 
 class Address(Base):
-    __tablename__ = "address_book"
+    name__ = "address_book"
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     profile_pk = Column(
         Integer, ForeignKey(Profile.pk, ondelete="CASCADE"))
