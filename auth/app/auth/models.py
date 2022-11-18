@@ -7,7 +7,7 @@ from sql_app.database import Base, get_db
 
 
 class User(Base):
-    name__ = "users"
+    __tablename__ = "users"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     profile = relationship("Profile", back_populates="user", primaryjoin="User.pk == Profile.user_ID",
@@ -31,7 +31,7 @@ class User(Base):
 
 
 class Profile(Base):
-    name__ = "profiles"
+    __tablename__ = "profiles"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     user_ID = Column(Integer, ForeignKey("users.pk", ondelete="CASCADE"))
@@ -50,7 +50,7 @@ class Profile(Base):
 
 
 class Address(Base):
-    name__ = "address_book"
+    __tablename__ = "address_book"
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
     profile_pk = Column(
         Integer, ForeignKey(Profile.pk, ondelete="CASCADE"))
