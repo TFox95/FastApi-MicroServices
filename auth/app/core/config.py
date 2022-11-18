@@ -22,4 +22,6 @@ class Settings():
     PEPPER: str = getenv("HASH_PEPPER")
     SALT: str | float = getenv("HASH_SALT")
 
+    AUTH_SECRET = str = getenv("AUTH_SECRET")
+
 settings = Settings()
