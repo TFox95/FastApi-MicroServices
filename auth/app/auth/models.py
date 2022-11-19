@@ -3,16 +3,16 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
-from sql_app.database import Base, get_db
+from sql_app.database import Base
 
 
 class User(Base):
     __tablename__ = "users"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    profile = relationship("Profile", back_populates="user", primaryjoin="User.pk == Profile.user_ID",
+    profile = relationship("Profile", back_populates="user", primaryjoin="User.UUID == Profile.user_UUID",
                            passive_deletes=True, uselist=False)
-    uuid = Column(String(length=36), unique=True, nullable=False)
+    UUID = Column(String(length=41), unique=True, nullable=False)
 
     email = Column(String(length=255), unique=True, index=True, nullable=False)
     username = Column(String(length=256), unique=True,
@@ -31,10 +31,10 @@ class User(Base):
 
 
 class Profile(Base):
-    __tablename__ = "profiles"
+    __tablename__ = "user_profiles"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    user_ID = Column(Integer, ForeignKey("users.pk", ondelete="CASCADE"))
+    user_UUID = Column(String(length=41),ForeignKey("users.UUID", ondelete="CASCADE"))
     user = relationship("User", cascade="all,delete",
                         back_populates="profile")
 
