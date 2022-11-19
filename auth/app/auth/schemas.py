@@ -1,7 +1,4 @@
 from pydantic import BaseModel as Base, EmailStr
-from sqlalchemy.orm import Session
-from uuid import uuid4
-from auth import models
 from datetime import datetime
 
 
@@ -29,13 +26,13 @@ class ProfileBase(Base):
 
 
 class ProfileCreate(ProfileBase):
-    user_ID: int
+    user_UUID: int
 
 
 class UserBase(Base):
     email: EmailStr
     username: str
-    uuid: str | None = None
+    UUID: str | None = None
     
     verified: bool = False
     isAdmin: bool = False
