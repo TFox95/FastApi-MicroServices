@@ -18,7 +18,8 @@ NAMESPACE: str = f"Base Server"
 def get_application():
     _app = _app = FastAPI(title=settings.PROJECT_NAME,
                           description="MicroService for handling Authentication",
-                          version="0.3.1")
+                          version="0.3.1"
+                          )
 
     _app.add_middleware(
         CORSMiddleware,
@@ -29,9 +30,9 @@ def get_application():
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
         
     )
+
     logging.ServerINFO(NAMESPACE, f"Server Running, MicroServer: {_app.title}")
     return _app
-
 
 app = get_application()
 
