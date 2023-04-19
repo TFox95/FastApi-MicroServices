@@ -1,10 +1,13 @@
+import jwt 
+from fastapi import HTTPException, status
 from uuid import uuid4
 
-import sqlalchemy
-from sqlalchemy.orm import Session, Query
-from sqlalchemy import select
+from datetime import timedelta, datetime
 
-from sql_app.database import get_db, engine
+from pydantic import EmailStr
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+from sql_app.database import get_db
 
 from auth import (schemas, models)
 
@@ -13,33 +16,84 @@ from core.hash import Hash
 from core.config import settings
 from core.logging import ServerINFO
 
+NAMESPACE:str = "Auth CRUD"
 User = models.User
-connection = engine.connect()
+TokenSchema = schemas.Token
 
-NAMESPACE = str("/Auth/CRUD")
+class AuthHandler():
+    Secret = settings.AUTH_SECRET
+    Pepper = settings.PEPPER
+    
+
+    def get_password_hash(self, psw: str) -> str:
+        return Hash.encode(psw, settings.PEPPER)
+    
+    def verify_password(self, psw, hashed_psw) -> bool:
+        pswKeyHash = self.get_password_hash(psw)
+        return Hash.verify(key=pswKeyHash,encoded_key=hashed_psw,pepper=self.Pepper)
+        
+    def encode_token(self, uuid:str, username:str):
+        payload = {
+            "exp": datetime.utcnow() + timedelta(days=0, minutes=5),
+            "iat": datetime.utcnow(),
+            "uuid": uuid,
+            "username": username 
+        }
+        return jwt.encode(
+            payload,
+            self.Secret,
+            algorithm="HS256"
+        )
+    
+    def decode_token(self, token) -> TokenSchema:
+        try:
+            payload = jwt.decode(
+                token,
+                self.Secret,
+                algorithm="HS256"
+            )
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Signature has expired')
+        except jwt.InvalidTokenError as e:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+            
+        return payload
+    
+    def grant_access(self, token:str, uuid:str):            
+            decoded = self.decode_token(token)
+            if not uuid == decoded.uuid:
+                return False
+                
+            return True
 
 class UserCRUD():
     
-    def create_User(db:Session, request: schemas.UserCreate):
-        #e = Session.query(User)
+    def create_User(db:Session, request: schemas.UserCreate) -> User:
+        """
+        function to create a user instance & a linked user 
+        profile instance
         
-        query = select(User).where(User.username == request.username)
-        conn = connection.execute(query).first()
-        #print(query)
-        print(conn)
-        
-        
+        """
         _dict: dict = request.dict()
-        _dict["uuid"] = uuid4()
-        _dict["psw"] = Hash.encode(_dict.get("re_psw"), settings.PEPPER) 
+        _dict["uuid"] = f"user_{uuid4()}"
+        _dict["psw"] = AuthHandler.get_password_hash(psw=_dict.get("re_psw")) 
         _dict.pop("re_psw", None)
-        _user = User(email=_dict.get("email"), username=_dict.get("username"),
-                    password=Hash.encode(_dict.get("psw"), settings.PEPPER), uuid=_dict.get("uuid"),
+        
+        _user: User = User(email=_dict.get("email"), username=_dict.get("username"),
+                    password=Hash.encode(_dict.get("psw"), settings.PEPPER), UUID=_dict.get("uuid"),
                     verified=_dict.get("verified"), isAdmin=_dict.get("isAdmin"))
-    
-        db.add(_user)
+        _profile = models.Profile(user_UUID=_user.UUID)
+        #adding User & User's Profile to db and then refreshing the _user instance with the updated information
+        db.add_all([_user, _profile])
         db.commit()
         db.refresh(_user)
-        logging.ServerINFO(NAMESPACE, f"<User {_user.username} has been created! Successfully!")
+        ServerINFO(NAMESPACE, f"<User {_user.username} has been created! Successfully!>")
         return _user
     
+    def retrieve_User(db:Session, username:str = None, email:EmailStr = None) -> User:
+        
+        _retrieve_user = db.query(User).filter(User.username == username).scalar() if (username
+                    ) else db.query(User).filter(User.email == email).scalar() if (email
+                        ) else None
+        return _retrieve_user
+

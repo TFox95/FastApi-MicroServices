@@ -1,27 +1,20 @@
-from sqlalchemy import ForeignKey, Boolean, Column, Integer, String, UniqueConstraint as Unique, Table
-from sqlalchemy.orm import relationship, backref, Session
+from sqlalchemy import (ForeignKey, Boolean, 
+                        Column, Integer,
+                        String)
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.types import DateTime
 
-from fastapi import Depends
-
-from sql_app.database import Base, get_db
-
-import datetime as Date
-
-from auth import schemas
-
-from core.config import settings
-from core.hash import Hash
+from sql_app.database import Base
 
 
 class User(Base):
     __tablename__ = "users"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    profile = relationship("Profile", back_populates="user", primaryjoin="User.pk == Profile.user_ID",
+    profile = relationship("Profile", back_populates="user", primaryjoin="User.UUID == Profile.user_UUID",
                            passive_deletes=True, uselist=False)
-    uuid = Column(String(length=36), unique=True, nullable=False)
+    UUID = Column(String(length=41), unique=True, nullable=False)
 
     email = Column(String(length=255), unique=True, index=True, nullable=False)
     username = Column(String(length=256), unique=True,
@@ -36,14 +29,14 @@ class User(Base):
     lastLogin = Column(DateTime, onupdate=func.now())
 
     def __repr__(self) -> str:
-        return f"<User {self.username} has been created>"
+        return f"{self.username}"
 
 
 class Profile(Base):
-    __tablename__ = "profiles"
+    __tablename__ = "user_profiles"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    user_ID = Column(Integer, ForeignKey("users.pk", ondelete="CASCADE"))
+    user_UUID = Column(String(length=41),ForeignKey("users.UUID", ondelete="CASCADE"))
     user = relationship("User", cascade="all,delete",
                         back_populates="profile")
 
@@ -56,8 +49,6 @@ class Profile(Base):
     stripe_Cust_ID = Column(String(length=50), nullable=True)
     One_click_Purchasing = Column(Boolean, default=False)
 
-    def __repr__(self) -> str:
-        return f"<Profile has been created>"
 
 
 class Address(Base):
@@ -73,6 +64,3 @@ class Address(Base):
     zipCode = Column(Integer)
     city = Column(String(length=25))
     state = Column(String(length=25))
-    
-    def __repr__(self) -> str:
-        return f"<Address {self.streetNumber} {self.streetName} has been created>"
