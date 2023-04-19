@@ -18,6 +18,7 @@ from core.logging import ServerINFO
 
 NAMESPACE:str = "Auth CRUD"
 User = models.User
+TokenSchema = schemas.Token
 
 class AuthHandler():
     Secret = settings.AUTH_SECRET
@@ -29,41 +30,41 @@ class AuthHandler():
     
     def verify_password(self, psw, hashed_psw) -> bool:
         pswKeyHash = self.get_password_hash(psw)
-        return Hash.verify(key=pswKeyHash,encoded_key=hashed_psw,pepper=settings.PEPPER)
+        return Hash.verify(key=pswKeyHash,encoded_key=hashed_psw,pepper=self.Pepper)
         
-    def encode_token(self, user_uuid:str, username:str):
+    def encode_token(self, uuid:str, username:str):
         payload = {
-            "exp": datetime.utcnow() + timedelta(),
+            "exp": datetime.utcnow() + timedelta(days=0, minutes=5),
             "iat": datetime.utcnow(),
-            "user_uuid": user_uuid,
+            "uuid": uuid,
             "username": username 
         }
         return jwt.encode(
             payload,
             self.Secret,
-            algorithim="HS256"
+            algorithm="HS256"
         )
     
-    def decode_token(self, token):
+    def decode_token(self, token) -> TokenSchema:
         try:
             payload = jwt.decode(
                 token,
                 self.Secret,
                 algorithm="HS256"
             )
-            return {payload["user_uuid"], payload["username"]}
-            
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Signature has expired')
         except jwt.InvalidTokenError as e:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
+            
+        return payload
     
-    def grant_access(self, token:str, user_uuid:str):            
+    def grant_access(self, token:str, uuid:str):            
             decoded = self.decode_token(token)
-            if user_uuid == decoded["user_uuid"]:
-                return True
+            if not uuid == decoded.uuid:
+                return False
                 
-            return False
+            return True
 
 class UserCRUD():
     

@@ -47,3 +47,8 @@ class User(UserBase):
     pk: int
     lastLogin: datetime
 
+class Token(Base):
+    exp: int
+    iat: int
+    uuid: str
+    username: str
