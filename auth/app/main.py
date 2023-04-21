@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from core import logging
 from core.config import settings
@@ -10,16 +11,17 @@ from auth import models as aModels
 from sql_app.api import routes as sql_routes
 from auth.api import routes as auth_routes
 
-aModels.Base.metadata.create_all(bind=engine)
+import time
+
 
 NAMESPACE: str = f"Base Server"
 
 
 def get_application():
-    _app = _app = FastAPI(title=settings.PROJECT_NAME,
-                          description="MicroService for handling Authentication",
-                          version="0.3.1"
-                          )
+    _app = FastAPI(title=settings.PROJECT_NAME,
+                    description="MicroService for handling Authentication",
+                    version="0.3.1"
+                    )
 
     _app.add_middleware(
         CORSMiddleware,
@@ -30,11 +32,29 @@ def get_application():
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
         
     )
-
-    logging.ServerINFO(NAMESPACE, f"Server Running, MicroServer: {_app.title}")
     return _app
 
 app = get_application()
+
+
+# Error Handling
+@app.middleware("http")
+async def errors_handling(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        return JSONResponse(status_code=500, content={'reason': str(exc)})
+
+
+# Creates Header named X-Process-Time to report the time to a calls completion.
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(f"{process_time}/s")
+    return response
+
 
 #Routes
 app.include_router(sql_routes.router)
