@@ -1,16 +1,15 @@
 from pydantic import BaseModel as Base, EmailStr
 from datetime import datetime
-from typing import Union, List
 
 
 class AddressBase(Base):
-    streetNumber: Union[int , None] 
-    streetName: Union[str , None] = None
-    aptNumber: Union[str , None] = None
+    streetNumber: int | None 
+    streetName: str | None = None
+    aptNumber: str | None = None
 
-    ZipCode: Union[int , None]
-    city: Union[str , None] = None
-    state: Union[str , None] = None
+    ZipCode: int | None
+    city: str | None = None
+    state: str | None = None
 
 
 class AddressCreate:
@@ -18,12 +17,12 @@ class AddressCreate:
 
 
 class ProfileBase(Base):
-    firstName: Union[str , None] = None
-    lastName: Union[str , None] = None
-    addresses: List[AddressBase] = []
+    firstName: str | None = None
+    lastName: str | None = None
+    addresses: list[AddressBase] = []
 
-    stripe_Cust_ID: Union[str , None] = None
-    One_click_Purchasing: Union[bool , None] = None
+    stripe_Cust_ID: str | None = None
+    One_click_Purchasing: bool | None = None
 
 
 class ProfileCreate(ProfileBase):
@@ -38,14 +37,14 @@ class UserLogin(Base):
 class UserBase(Base):
     email: EmailStr
     username: str
-    UUID: Union[str , None] = None
-    pk: Union[int , None]
+    UUID: str | None = None
+    pk: int | None
     
     verified: bool = False
     isAdmin: bool = False
 
-    dateJoined: Union[datetime , str , None]
-    lastLogin: Union[datetime , str , None] = None
+    dateJoined: datetime | str | None
+    lastLogin: datetime | str | None = None
 
     class Config:
         orm_mode = True
