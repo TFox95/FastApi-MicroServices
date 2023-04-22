@@ -13,6 +13,9 @@ from auth.api import routes as auth_routes
 
 import time
 
+aModels.User.metadata.create_all(engine)
+aModels.Profile.metadata.create_all(engine)
+aModels.Address.metadata.create_all(engine)
 
 NAMESPACE: str = f"Base Server"
 

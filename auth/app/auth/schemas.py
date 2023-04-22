@@ -38,12 +38,12 @@ class UserBase(Base):
     email: EmailStr
     username: str
     UUID: str | None = None
-    pk: int
+    pk: int | None
     
     verified: bool = False
     isAdmin: bool = False
 
-    dateJoined: datetime | str
+    dateJoined: datetime | str | None
     lastLogin: datetime | str | None = None
 
     class Config:
