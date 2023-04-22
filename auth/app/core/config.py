@@ -2,8 +2,10 @@ import dotenv
 from os import getenv
 from typing import List
 from pydantic import AnyHttpUrl
+from fastapi.responses import JSONResponse
 
 dotenv.load_dotenv()
+
 
 class Settings():
     PROJECT_NAME: str = getenv("PROJECT_NAME") or "test"
@@ -24,4 +26,17 @@ class Settings():
 
     AUTH_SECRET = str = getenv("AUTH_SECRET")
 
+
 settings = Settings()
+
+
+class JsonRender(JSONResponse):
+    """
+    This Class was created to return certain content that would
+    allow content that needs to be return as an object to utilize
+    the reponse_model argument on an API Endpoint but it keeps 
+    consistency of the Apps Json-scheme. 
+    """
+    def render(self, content) -> bytes:
+        # Here you can modify the response content or headers as needed
+        return super().render({'success': content})
