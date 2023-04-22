@@ -1,6 +1,6 @@
 from pydantic import BaseModel as Base, EmailStr
 from datetime import datetime
-from typing import Union
+from typing import Union, List
 
 
 class AddressBase(Base):
@@ -20,7 +20,7 @@ class AddressCreate:
 class ProfileBase(Base):
     firstName: Union[str , None] = None
     lastName: Union[str , None] = None
-    addresses: list[AddressBase] = []
+    addresses: List[AddressBase] = []
 
     stripe_Cust_ID: Union[str , None] = None
     One_click_Purchasing: Union[bool , None] = None
