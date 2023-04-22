@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sql_app.database import get_db
 
-from auth import (schemas, models)
+from auth import schemas, models
 
 from core import logging
 from core.hash import Hash
@@ -17,7 +17,7 @@ from core.config import settings
 from core.logging import ServerINFO
 
 NAMESPACE:str = "Auth CRUD"
-User = models.User
+UserModel = models.User
 TokenSchema = schemas.Token
 
 class AuthHandler():
@@ -26,7 +26,7 @@ class AuthHandler():
     
 
     def get_password_hash(self, psw: str) -> str:
-        return Hash.encode(psw, settings.PEPPER)
+        return Hash.encode(key=psw, pepper=self.Pepper)
     
     def verify_password(self, psw, hashed_psw) -> bool:
         pswKeyHash = self.get_password_hash(psw)
@@ -34,7 +34,8 @@ class AuthHandler():
         
     def encode_token(self, uuid:str, username:str):
         payload = {
-            "exp": datetime.utcnow() + timedelta(days=0, minutes=5),
+            "iss": "https://www.Aestriks.com",
+            "exp": datetime.utcnow() + timedelta(days=100, hours=0, minutes=0),
             "iat": datetime.utcnow(),
             "uuid": uuid,
             "username": username 
@@ -50,7 +51,7 @@ class AuthHandler():
             payload = jwt.decode(
                 token,
                 self.Secret,
-                algorithm="HS256"
+                algorithms="HS256"
             )
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Signature has expired')
@@ -68,7 +69,7 @@ class AuthHandler():
 
 class UserCRUD():
     
-    def create_User(db:Session, request: schemas.UserCreate) -> User:
+    def create_User(db:Session, request: schemas.UserCreate) -> UserModel:
         """
         function to create a user instance & a linked user 
         profile instance
@@ -76,10 +77,10 @@ class UserCRUD():
         """
         _dict: dict = request.dict()
         _dict["uuid"] = f"user_{uuid4()}"
-        _dict["psw"] = AuthHandler.get_password_hash(psw=_dict.get("re_psw")) 
+        _dict["psw"] = AuthHandler().get_password_hash(psw=_dict.get("re_psw")) 
         _dict.pop("re_psw", None)
         
-        _user: User = User(email=_dict.get("email"), username=_dict.get("username"),
+        _user: UserModel = UserModel(email=_dict.get("email"), username=_dict.get("username"),
                     password=Hash.encode(_dict.get("psw"), settings.PEPPER), UUID=_dict.get("uuid"),
                     verified=_dict.get("verified"), isAdmin=_dict.get("isAdmin"))
         _profile = models.Profile(user_UUID=_user.UUID)
@@ -90,10 +91,10 @@ class UserCRUD():
         ServerINFO(NAMESPACE, f"<User {_user.username} has been created! Successfully!>")
         return _user
     
-    def retrieve_User(db:Session, username:str = None, email:EmailStr = None) -> User:
+    def retrieve_User(db:Session, username:str = None, email:EmailStr = None) -> UserModel:
         
-        _retrieve_user = db.query(User).filter(User.username == username).scalar() if (username
-                    ) else db.query(User).filter(User.email == email).scalar() if (email
+        _retrieve_user = db.query(UserModel).filter(UserModel.username == username).scalar() if (username
+                    ) else db.query(UserModel).filter(UserModel.email == email).scalar() if (email
                         ) else None
         return _retrieve_user
 
