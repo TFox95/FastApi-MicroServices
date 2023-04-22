@@ -4,12 +4,12 @@ from datetime import datetime
 
 class AddressBase(Base):
     streetNumber: int 
-    streetName: str | None = None
-    aptNumber: str | None = None
+    streetName: str
+    aptNumber: str
 
     ZipCode: int
-    city: str | None = None
-    state: str | None = None
+    city: str
+    state: str
 
 
 class AddressCreate:
@@ -17,12 +17,12 @@ class AddressCreate:
 
 
 class ProfileBase(Base):
-    firstName: str | None = None
-    lastName: str | None = None
+    firstName: str | None
+    lastName: str | None
     addresses: list[AddressBase] = []
 
-    stripe_Cust_ID: str | None = None
-    One_click_Purchasing: bool | None = None
+    stripe_Cust_ID: str | None
+    One_click_Purchasing: bool | None
 
 
 class ProfileCreate(ProfileBase):
