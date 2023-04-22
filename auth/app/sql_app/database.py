@@ -7,7 +7,7 @@ from core.config import settings
 
 NAMESPACE: str = "SQL_APP/Database"
 
-engine = create_engine(url=settings.DB_URL, echo=False)
+engine = create_engine(url="postgresql://admin_ikuyo:a6TBOtNYqhPXXD2O5PzOxXvFI8YP2wNT@dpg-ch1jiq5gk4qarql97dh0-a/e_commerce_1cyi", echo=False)
 
 SessionCloud = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
