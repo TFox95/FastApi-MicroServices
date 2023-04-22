@@ -22,7 +22,7 @@ class Settings():
     #MySQL structure
     #DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     #Postgress Structure
-    DB_URL: str = f"{DB_DRIVER}://{DB_HOST}"
+    DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}{DB_NAME}"
 
     PEPPER: str = getenv("HASH_PEPPER")
     SALT: str = getenv("HASH_SALT")
