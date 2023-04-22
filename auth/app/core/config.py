@@ -20,9 +20,9 @@ class Settings():
     DB_PORT: int = getenv("DB_PORT")
     DB_DRIVER: str = getenv("DB_DRIVER")
     #MySQL structure
-    #DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     #Postgress Structure
-    DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}{DB_NAME}"
+    #DB_URL: str = f"{DB_DRIVER}://{DB_USER}:{DB_PASS}@{DB_HOST}{DB_NAME}"
 
     PEPPER: str = getenv("HASH_PEPPER")
     SALT: str = getenv("HASH_SALT")
