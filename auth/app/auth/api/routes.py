@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request, Form, Response, Cookie
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, status, HTTPException, Request, Cookie
+from fastapi.encoders import jsonable_encoder as jEnc
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder as Jencoder
 
 from sql_app.database import get_db
 from sqlalchemy.orm import Session
 
 from auth import schemas, models, crud
+from core.config import JsonRender
 
 NAMESPACE = f"Auth Routes"
 
@@ -15,10 +15,7 @@ router = APIRouter(
     tags=["auth"]
 )
 
-User = models.User
-
-Oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-
+UserModel = models.User
 
 @router.get("/")
 def get_auth():
@@ -28,10 +25,10 @@ def get_auth():
 @router.post("/register")
 def Register(request: schemas.UserCreate, db: Session = Depends(get_db)):
 
-    dbEmailQuery: User = db.query(User).filter(
-        User.email == request.email).scalar() or None
-    dbUsernameQuery: User = db.query(User).filter(
-        User.username == request.username).scalar() or None
+    dbEmailQuery: UserModel = db.query(UserModel).filter(
+        UserModel.email == request.email).scalar() or None
+    dbUsernameQuery: UserModel = db.query(UserModel).filter(
+        UserModel.username == request.username).scalar() or None
 
     if dbEmailQuery or dbUsernameQuery or (request.psw != request.re_psw):
         if dbEmailQuery:
@@ -53,14 +50,14 @@ def Register(request: schemas.UserCreate, db: Session = Depends(get_db)):
     }, status.HTTP_201_CREATED)
 
 
-@router.post("/login")
-def login(formData: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@router.post("/token")
+def login(request: schemas.UserLogin, db: Session = Depends(get_db)):
     """
     This function only recieves data as Form data returns a jwt token
     """
-    user: User = crud.UserCRUD.retrieve_User(db, email=formData.username) if "@" in str(formData.username
-                                                                                        ) else crud.UserCRUD.retrieve_User(db, username=formData.username)
-    checkPassword = crud.AuthHandler().verify_password(psw=formData.password, hashed_psw=user.password) if (user
+    user: UserModel = crud.UserCRUD.retrieve_User(db, email=request.username) if "@" in str(request.username
+                                                                                        ) else crud.UserCRUD.retrieve_User(db, username=request.username)
+    checkPassword = crud.AuthHandler().verify_password(psw=request.password, hashed_psw=user.password) if (user
                                                                                                             ) else None
 
     if not checkPassword:
@@ -70,29 +67,61 @@ def login(formData: OAuth2PasswordRequestForm = Depends(), db: Session = Depends
         )
 
     jwt = crud.AuthHandler().encode_token(user.UUID, user.username)
-    print(jwt)
-    content = {"success": f"User {user.username} found"}
+    content = {"success": {"username": f"{user.username}", "token" : f"bearer {jwt}"}}
     res = JSONResponse(content, status_code=status.HTTP_302_FOUND)
     res.set_cookie(key="Authorization", value=jwt, secure=True, httponly=True)
     return res
 
 
-async def checkAuthorization(Authorization=Cookie(None)):
+async def checkAuthorization(request: Request,Authorization=Cookie(None)) -> str:
 
-    if not Authorization:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="No token found")
+    try:
+        Authorization = Authorization if Authorization else str(
+        request.headers["Authorization"]).split(" ")[-1] if not None else None
+        if not Authorization:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="No token found")
+        return Authorization
+        
+    except:
+        raise HTTPException(detail={"error": f"Token invalid"}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-    print(Authorization)
+    
 
-    return Authorization
+async def getCurrentUser(token = Depends(checkAuthorization), db:Session = Depends(get_db)) -> UserModel:
+    try:
+        decodedToken: dict= crud.AuthHandler().decode_token(token)
+        decodedUser = crud.UserCRUD.retrieve_User(db, username=decodedToken.get("username"))
+        return decodedUser
+    except:
+        raise HTTPException(detail={"error": "Internal Error"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @router.get("/protected")
-async def test(request: Request, decoded=Depends(checkAuthorization)):
-    data = await decoded
+async def protectedRoute(decoded=Depends(getCurrentUser)):
+    data = decoded
 
     if data:
-        return Response({"success": "lets go!"})
+        return JSONResponse({"success": "lets go!"}, status_code=status.HTTP_200_OK)
 
-    return Response({"error": "uhh some went wrong!"})
+    return JSONResponse({"error": "uhh some went wrong!"}, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.post("/logout")
+async def logout( decoded:dict=Depends(getCurrentUser)):
+    username =  decoded.get("username")
+    content = {"success" : f"{username} has been Logged out"}
+    res = JSONResponse(content, status.HTTP_202_ACCEPTED)
+    res.delete_cookie("Authorization")
+    return res
+
+
+@router.get("/retrieve_user", response_model=schemas.UserBase, response_model_exclude=["pk", "UUID", "isAdmin"], response_class=JsonRender)
+async def retrieveUserData(request: Request, User= Depends(getCurrentUser)) -> schemas.UserBase:
+    return User
+
+@router.get("/retrieve_user/all")
+async def retrieveAllUserData(request: Request, User= Depends(getCurrentUser)) -> schemas.UserBase:
+    decodedUser = jEnc(User)
+    content = {"success": decodedUser}
+    return JSONResponse(content, status.HTTP_200_OK)
