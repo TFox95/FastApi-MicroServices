@@ -29,13 +29,25 @@ class ProfileCreate(ProfileBase):
     user_UUID: int
 
 
+class UserLogin(Base):
+    username: str
+    password: str
+
+
 class UserBase(Base):
     email: EmailStr
     username: str
     UUID: str | None = None
+    pk: int
     
     verified: bool = False
     isAdmin: bool = False
+
+    dateJoined: datetime | str
+    lastLogin: datetime | str | None = None
+
+    class Config:
+        orm_mode = True
 
 
 class UserCreate(UserBase):
@@ -50,5 +62,6 @@ class User(UserBase):
 class Token(Base):
     exp: int
     iat: int
+    iss: str
     uuid: str
     username: str
