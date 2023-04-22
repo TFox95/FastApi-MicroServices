@@ -3,11 +3,11 @@ from datetime import datetime
 
 
 class AddressBase(Base):
-    streetNumber: int | None 
+    streetNumber: int 
     streetName: str | None = None
     aptNumber: str | None = None
 
-    ZipCode: int | None
+    ZipCode: int
     city: str | None = None
     state: str | None = None
 
