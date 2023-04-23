@@ -7,7 +7,9 @@ from core.config import settings
 
 NAMESPACE: str = "SQL_APP/Database"
 
-engine = create_engine(url=settings.DB_URL, echo=False)
+SQLALCHEMY_DATABASE_URL: str = "sqlite:///./test.db"
+
+engine = create_engine(url=SQLALCHEMY_DATABASE_URL, echo=False)
 
 SessionCloud = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

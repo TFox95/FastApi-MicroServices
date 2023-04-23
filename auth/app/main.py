@@ -35,6 +35,7 @@ def get_application():
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
         
     )
+    print(f"{settings.DB_URL}")
     return _app
 
 app = get_application()
