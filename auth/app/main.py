@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from core import logging
 from core.config import settings
 
 from sql_app.database import engine
@@ -35,7 +34,6 @@ def get_application():
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
         
     )
-    print(f"{settings.DB_URL}")
     return _app
 
 app = get_application()

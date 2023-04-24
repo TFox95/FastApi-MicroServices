@@ -5,7 +5,6 @@ from uuid import uuid4
 from datetime import timedelta, datetime
 
 from pydantic import EmailStr
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sql_app.database import get_db
 
@@ -97,4 +96,15 @@ class UserCRUD():
                     ) else db.query(UserModel).filter(UserModel.email == email).scalar() if (email
                         ) else None
         return _retrieve_user
+    
+    def lastLogin (db:Session, username:str) -> bool:
+        updateUserData = db.query(UserModel).filter(
+            UserModel.username == username).update({
+            "lastLogin": datetime.now()
+            })
+        if not updateUserData:
+            return False
+        db.commit()
+        return True
+
 
