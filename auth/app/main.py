@@ -4,27 +4,18 @@ from fastapi.responses import JSONResponse
 
 from core.config import settings
 
-from sql_app.database import engine
-from auth import models as aModels
-
 from sql_app.api import routes as sql_routes
 from auth.api import routes as auth_routes
 
 import time
 
-aModels.User.metadata.create_all(engine)
-aModels.Profile.metadata.create_all(engine)
-aModels.Address.metadata.create_all(engine)
-
 NAMESPACE: str = f"Base Server"
-
 
 def get_application():
     _app = FastAPI(title=settings.PROJECT_NAME,
                     description="MicroService for handling Authentication",
                     version="0.3.1"
                     )
-
     _app.add_middleware(
         CORSMiddleware,
         allow_origins=[str(origin)
@@ -32,7 +23,6 @@ def get_application():
         allow_credentials=True,
         allow_methods=["POST", "PATCH", "GET", "DELETE", "PUT", "OPTIONS"],
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
-        
     )
     return _app
 
