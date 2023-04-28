@@ -42,4 +42,4 @@ class JsonRender(JSONResponse):
     """
     def render(self, content) -> bytes:
         # Here you can modify the response content or headers as needed
-        return super().render({'success': content})
+        return super().render({'data': content})

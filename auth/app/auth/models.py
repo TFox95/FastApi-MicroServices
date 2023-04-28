@@ -12,8 +12,8 @@ class User(Base):
     __tablename__ = "users"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    profile = relationship("Profile", back_populates="user", primaryjoin="User.UUID == Profile.user_UUID",
-                           passive_deletes=True, uselist=False)
+    profile = relationship("Profile", back_populates="user", primaryjoin="User.pk == Profile.user_pk",
+                           passive_deletes=True, uselist=False, lazy="joined")
     UUID = Column(String(length=41), unique=True, nullable=False)
 
     email = Column(String(length=255), unique=True, index=True, nullable=False)
@@ -36,7 +36,7 @@ class Profile(Base):
     __tablename__ = "user_profiles"
 
     pk = Column(Integer, primary_key=True, index=True, nullable=False)
-    user_UUID = Column(String(length=41),ForeignKey("users.UUID", ondelete="CASCADE"))
+    user_pk = Column(Integer,ForeignKey("users.pk", ondelete="CASCADE"))
     user = relationship("User", cascade="all,delete",
                         back_populates="profile")
 
@@ -44,11 +44,9 @@ class Profile(Base):
     lastName = Column(String(length=35), index=True)
     addresses = relationship(
         "Address", back_populates="profile", passive_deletes=True,
-        primaryjoin="Profile.pk == Address.profile_pk", uselist=True)
-
+        primaryjoin="Profile.pk == Address.profile_pk", lazy="joined", uselist=True)
     stripe_Cust_ID = Column(String(length=50), nullable=True)
     One_click_Purchasing = Column(Boolean, default=False)
-
 
 
 class Address(Base):
@@ -64,3 +62,14 @@ class Address(Base):
     zipCode = Column(Integer)
     city = Column(String(length=25))
     state = Column(String(length=25))
+    country = relationship("CountryCode", back_populates="address", primaryjoin= "Address.pk == CountryCode.address_pk",
+                           passive_deletes=False, uselist=False, lazy="joined")
+
+
+class CountryCode(Base):
+    __tablename__ = "country_code"
+    pk = Column(Integer, primary_key=True, index=True, nullable=False)
+    address_pk = Column(Integer, ForeignKey(Address.pk))
+    address = relationship("Address", back_populates="country")
+    alpha3 = Column(String(length=3), unique=True, nullable=False)
+    title = Column(String(length=25), unique=True, nullable=False)

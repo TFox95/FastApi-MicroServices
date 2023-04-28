@@ -22,12 +22,13 @@ async def get_sql_app(res=JSONResponse, req=Request, db: Session = Depends(get_d
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, f"{jEnc(e)}")
     
 
-@router.get("/create_tables")
+@router.post("/create_tables")
 async def createTables(req:Request, db: Session= Depends(get_db)):
     try:
         aModels.User.metadata.create_all(engine)
         aModels.Profile.metadata.create_all(engine)
         aModels.Address.metadata.create_all(engine)
+        aModels.CountryCode.metadata.create_all(engine)
         content = {"success" : "Tables created successfully! within Mysql Cloud Database."}
         return JSONResponse(content, status.HTTP_201_CREATED)
     except Exception as e:

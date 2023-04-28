@@ -1,6 +1,5 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 
 from core.config import settings
 
@@ -35,7 +34,7 @@ async def errors_handling(request: Request, call_next):
     try:
         return await call_next(request)
     except Exception as exc:
-        return JSONResponse(status_code=500, content={'reason': str(exc)})
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 # Creates Header named X-Process-Time to report the time to a calls completion.
