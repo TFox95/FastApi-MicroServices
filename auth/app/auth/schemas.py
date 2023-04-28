@@ -1,8 +1,19 @@
 from pydantic import BaseModel as Base, EmailStr
 from datetime import datetime
 
+class OrmBase(Base):
+    class Config:
+        orm_mode=True
 
-class AddressBase(Base):
+
+class CountryCode(OrmBase):
+    pk: int | None
+    name: str | None
+
+
+class AddressBase(OrmBase):
+    profile_pk: int
+
     streetNumber: int | None 
     streetName: str | None = None
     aptNumber: str | None = None
@@ -10,23 +21,20 @@ class AddressBase(Base):
     ZipCode: int | None
     city: str | None = None
     state: str | None = None
+    country_Code: CountryCode | None
 
 
-class AddressCreate:
-    profile_pk: int
+class ProfileBase(OrmBase):
+    pk: int | None
+    user_pk: int | None
 
-
-class ProfileBase(Base):
     firstName: str | None = None
     lastName: str | None = None
-    addresses: list[AddressBase] = []
 
     stripe_Cust_ID: str | None = None
     One_click_Purchasing: bool | None = None
 
-
-class ProfileCreate(ProfileBase):
-    user_UUID: int
+    AddressList: list[AddressBase] | None
 
 
 class UserLogin(Base):
@@ -34,30 +42,29 @@ class UserLogin(Base):
     password: str
 
 
-class UserBase(Base):
+class UserBase(OrmBase):
+    pk: int | None
+    UUID: str | None = None
     email: EmailStr
     username: str
-    UUID: str | None = None
-    pk: int | None
+    password: str
+    
     
     verified: bool = False
-    isAdmin: bool = False
+    isAdmin: bool | None
 
     dateJoined: datetime | str | None
     lastLogin: datetime | str | None = None
 
-    class Config:
-        orm_mode = True
+    user_profile: ProfileBase | None
 
 
-class UserCreate(UserBase):
+class UserCreate(OrmBase):
+    email: EmailStr
+    username: str
     psw: str
     re_psw: str
 
-
-class User(UserBase):
-    pk: int
-    lastLogin: datetime
 
 class Token(Base):
     exp: int
