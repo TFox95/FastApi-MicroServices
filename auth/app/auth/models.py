@@ -30,6 +30,19 @@ class User(Base):
 
     def __repr__(self) -> str:
         return f"{self.username}"
+    
+    def dict(self, exclude_none=True):
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if value is not None
+        }
+    
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
+
 
 
 class Profile(Base):
@@ -47,6 +60,20 @@ class Profile(Base):
         primaryjoin="Profile.pk == Address.profile_pk", lazy="joined", uselist=True)
     stripe_Cust_ID = Column(String(length=50), nullable=True)
     One_click_Purchasing = Column(Boolean, default=False)
+    
+    def dict(self, exclude_none=True):
+        self.__dict__.items().mapping.get("")
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            
+            if value is not None
+        }
+        
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
 
 
 class Address(Base):
@@ -64,6 +91,18 @@ class Address(Base):
     state = Column(String(length=25))
     country = relationship("CountryCode", back_populates="address", primaryjoin= "Address.pk == CountryCode.address_pk",
                            passive_deletes=False, uselist=False, lazy="joined")
+    
+    def dict(self, exclude_none=True):
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if value is not None
+        }
+    
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
 
 
 class CountryCode(Base):
@@ -73,3 +112,15 @@ class CountryCode(Base):
     address = relationship("Address", back_populates="country")
     alpha3 = Column(String(length=3), unique=True, nullable=False)
     title = Column(String(length=25), unique=True, nullable=False)
+    
+    def dict(self, exclude_none=True):
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if value is not None
+        }
+    
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
