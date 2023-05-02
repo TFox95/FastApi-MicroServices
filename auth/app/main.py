@@ -28,15 +28,6 @@ def get_application():
 app = get_application()
 
 
-# Error Handling
-@app.middleware("http")
-async def errors_handling(request: Request, call_next):
-    try:
-        return await call_next(request)
-    except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-
-
 # Creates Header named X-Process-Time to report the time to a calls completion.
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
@@ -45,6 +36,15 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(f"{process_time}/s")
     return response
+
+
+# Error Handling
+@app.middleware("http")
+async def errors_handling(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 #Routes
