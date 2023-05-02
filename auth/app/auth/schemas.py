@@ -56,7 +56,7 @@ class UserBase(OrmBase):
     dateJoined: datetime | str | None
     lastLogin: datetime | str | None = None
 
-    user_profile: ProfileBase | None
+    profile: ProfileBase | None | object = {}
 
 
 class UserCreate(OrmBase):
