@@ -162,7 +162,7 @@ async def logout(decoded: dict = Depends(getCurrentUser)):
      	 A response containing a sting with the user's username that
        has been logged out
     """
-    username = decoded.get("username")
+    username = decoded.username
     content = {"data": f"{username} has been Logged out"}
     res = JSONResponse(content, status.HTTP_202_ACCEPTED)
     res.delete_cookie("Authorization")
@@ -225,14 +225,29 @@ async def getAllUsers(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(detail="Something went wrong, please Try again later", status_code=status.HTTP_400_BAD_REQUEST)
     return grabUsers
 
-@router.get("/test", response_class=JsonRender)
-async def test(request:Request, db:Session=Depends(get_db)):
-    listOfUsers = db.query(models.User).all()
-    listOfProfiles = db.query(models.Profile).all()
-    listOfAddresses = db.query(models.Address).all()
-    return listOfUsers,listOfProfiles, listOfAddresses
 
-
-@router.patch("/patchProfile")
-async def patchProfile(req:Request, db:Session=Depends(get_db)):
-    pass
+@router.patch("/patch_profile", response_class=JsonRender, response_model=schemas.ProfileBase, response_model_exclude=["pk", "user_pk", "stripe_Cust_ID"] )
+async def patchProfile(req:schemas.ProfileBase, db:Session=Depends(get_db), decodeUser:schemas.UserBase=Depends(getCurrentUser)):
+    """
+     Updates a User's Profile in the Database This is a wrapper around CRUD's patch_profile method
+     Also checks weather the keys in the data to update dict is areaddy stored in the decodedUserprofile
+     dict.
+     
+     Args:
+     	 req: Request object to be used for patching
+     	 db: Object that holds the database connection to be used
+     	 decodeUser: User object that contains the profile to be updated
+     
+     Returns: 
+     	 A response containing the updated profile as part of a successful 
+       data object which the profile will be defined in the _profile variable, 
+       but on failure it will return a detail Json object which will contain 
+       the reaon of failure.
+    """
+    decodedUserProfile: dict= decodeUser.profile.dict()
+    data_to_update: dict= req.dict(exclude_unset=True)
+    # If the user profile is already stored within the database raise an HTTPException.
+    if all((key, value) in decodedUserProfile for (key,value) in data_to_update.items()):
+        raise HTTPException(status.HTTP_406_NOT_ACCEPTABLE, "Value's already stored within Database")
+    _profile = crud.ProfileCRUD.patch_profile(db, req, decodeUser.pk)
+    return _profile
