@@ -16,7 +16,13 @@ from core.config import settings
 from core.logging import ServerINFO
 
 NAMESPACE: str = "Auth CRUD"
+
+# Model variables
 UserModel = models.User
+ProfileModel = models.Profile
+
+# Schema variables
+ProfileSchema = schemas.ProfileBase
 TokenSchema = schemas.Token
 
 class AuthHandler():
@@ -57,7 +63,7 @@ class AuthHandler():
         return Hash.verify(key=pswKeyHash, encoded_key=hashed_psw, pepper=self.Pepper)
 
 
-    def encode_token(self, uuid: str, username: str):
+    def encode_token(self, uuid: str, username: str) -> str:
         """
          Encode a token to be used in requests. This is a helper method to encode 
          an auth token that can be used in requests.
@@ -201,3 +207,40 @@ class UserCRUD():
             return False
         db.commit()
         return True
+
+class ProfileCRUD():
+    
+    def patch_profile(db: Session, request: ProfileSchema, identifier: int | str) -> ProfileSchema:
+        """
+        Updates the profile with the given identifier with the data from the request object.
+
+        Args:
+            db: The database session.
+            request: The request object.
+            identifier: The identifier of the profile to update.
+
+        Returns:
+            The updated ProfileSchema object.
+        """
+
+        # Check the permissions of the user who is calling the function.
+        # if not db.query(UserModel).filter_by(pk=request.pk).first().isAdmin:
+        #     raise PermissionError("You do not have permission to update profiles.")
+
+        # Get the profile from the database.
+        profile = db.query(ProfileModel).filter_by(user_pk=identifier).scalar()
+
+        # Update the profile with the data from the request object.
+        for key, value in request.dict(exclude_unset=True).items():
+            setattr(profile, key, value)
+        print(profile)
+        # Refresh the profile in the database.
+        # db.refresh(profile)
+
+        # Commit the changes to the database.
+        db.commit()
+        
+        db.refresh(profile)
+
+        # Return the updated ProfileSchema object.
+        return ProfileSchema(**profile.dict())
