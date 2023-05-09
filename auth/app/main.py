@@ -1,6 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-
 from core.config import settings
 
 from sql_app.api import routes as sql_routes
@@ -43,6 +42,8 @@ async def add_process_time_header(request: Request, call_next):
 async def errors_handling(request: Request, call_next):
     try:
         return await call_next(request)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="The requested resource does not exist")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
