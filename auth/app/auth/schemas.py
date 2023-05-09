@@ -37,6 +37,13 @@ class ProfileBase(OrmBase):
     AddressList: list[AddressBase] | None
 
 
+class PatchProfile(OrmBase):
+    firstName: str | None
+    lastName: str | None
+    
+    One_click_Purchasing: bool | None
+    
+    
 class UserLogin(Base):
     username: str
     password: str
@@ -48,7 +55,6 @@ class UserBase(OrmBase):
     email: EmailStr
     username: str
     password: str
-    
     
     verified: bool = False
     isAdmin: bool | None

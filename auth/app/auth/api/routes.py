@@ -227,7 +227,7 @@ async def getAllUsers(request: Request, db: Session = Depends(get_db)):
 
 
 @router.patch("/patch_profile", response_class=JsonRender, response_model=schemas.ProfileBase, response_model_exclude=["pk", "user_pk", "stripe_Cust_ID"] )
-async def patchProfile(req:schemas.ProfileBase, db:Session=Depends(get_db), decodeUser:schemas.UserBase=Depends(getCurrentUser)):
+async def patchProfile(req:schemas.PatchProfile, db:Session=Depends(get_db), decodeUser:schemas.UserBase=Depends(getCurrentUser)):
     """
      Updates a User's Profile in the Database This is a wrapper around CRUD's patch_profile method
      Also checks weather the keys in the data to update dict is areaddy stored in the decodedUserprofile

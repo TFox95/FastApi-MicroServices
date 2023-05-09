@@ -233,7 +233,6 @@ class ProfileCRUD():
         # Update the profile with the data from the request object.
         for key, value in request.dict(exclude_unset=True).items():
             setattr(profile, key, value)
-        print(profile)
         # Refresh the profile in the database.
         # db.refresh(profile)
 
