@@ -10,14 +10,11 @@ import time
 NAMESPACE: str = f"Base Server"
 
 def get_application():
-    _app = FastAPI(title=settings.PROJECT_NAME,
-                    description="MicroService for handling Authentication",
+    _app = FastAPI(description="MicroService for handling Authentication",
                     version="0.3.1"
                     )
     _app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin)
-                       for origin in settings.BACKEND_CORS_ORIGINS],
+        CORSMiddleware
         allow_credentials=True,
         allow_methods=["POST", "PATCH", "GET", "DELETE", "PUT", "OPTIONS"],
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
