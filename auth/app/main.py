@@ -14,7 +14,7 @@ def get_application():
                     version="0.3.1"
                     )
     _app.add_middleware(
-        CORSMiddleware
+        CORSMiddleware,
         allow_credentials=True,
         allow_methods=["POST", "PATCH", "GET", "DELETE", "PUT", "OPTIONS"],
         allow_headers=["Access-Control-Allow-Headers", "Origin", "X-Requested-Width", "Content-Type", "Accept", "Authorization"],
