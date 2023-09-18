@@ -47,6 +47,9 @@ async def errors_handling(request: Request, call_next):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
 
+@app.get("/")
+async def basic(request:Request):
+    return "{'hello': 'world'}"
 
 #Routes
 app.include_router(sql_routes.router)
